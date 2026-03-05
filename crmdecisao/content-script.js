@@ -2,6 +2,8 @@ const AI_ENDPOINT = "https://lkoutxybaupxjoggxayb.supabase.co/functions/v1/groq-
 const AI_TOKEN =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxrb3V0eHliYXVweGpvZ2d4YXliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2OTQxMjYsImV4cCI6MjA4ODI3MDEyNn0.js0oKNSXhAhW6QE-pVqFY22S15XCukj6KNtnq0VsfLM";
 
+const processedIncoming = new Set();
+
 function injectBridge() {
   if (document.getElementById("crmdecisao-inject")) return;
   const script = document.createElement("script");
@@ -35,11 +37,16 @@ async function requestAIReply(customerMessage) {
   });
 
   if (!response.ok) throw new Error(`Falha IA (${response.status})`);
+
   const data = await response.json();
   return data?.choices?.[0]?.message?.content || "";
 }
 
 async function processIncoming(payload) {
+  const uniqueKey = payload.messageId || `${payload.chatId}:${payload.text}`;
+  if (processedIncoming.has(uniqueKey)) return;
+  processedIncoming.add(uniqueKey);
+
   const rules = await loadRules();
   if (!rules.globalEnabled) return;
 
@@ -64,15 +71,15 @@ async function processIncoming(payload) {
 
 window.addEventListener("message", async (event) => {
   if (event.source !== window) return;
+
   const data = event.data;
   if (!data || data.source !== "CRMDECISAO_INJECT") return;
+  if (data.type !== "CRMDECISAO_INCOMING_MESSAGE") return;
 
-  if (data.type === "CRMDECISAO_INCOMING_MESSAGE") {
-    try {
-      await processIncoming(data.payload);
-    } catch (error) {
-      console.warn("[CRM Decisão] erro no processamento IA:", error.message);
-    }
+  try {
+    await processIncoming(data.payload);
+  } catch (error) {
+    console.warn("[CRM Decisão] erro no processamento IA:", error.message);
   }
 });
 

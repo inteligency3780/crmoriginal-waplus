@@ -2,12 +2,12 @@
   "manifest_version": 3,
   "name": "CRM Decisão",
   "description": "Nova interface CRM inspirada no main com WhatsApp + IA com recebimento, processamento e resposta.",
-  "version": "0.2.0",
+  "version": "3.0.5",
   "action": {
     "default_title": "CRM Decisão",
     "default_popup": "popup.html"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
   "host_permissions": [
     "https://lkoutxybaupxjoggxayb.supabase.co/*",
     "https://web.whatsapp.com/*"

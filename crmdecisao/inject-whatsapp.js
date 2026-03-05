@@ -1,32 +1,48 @@
 (function () {
-  const processedMessages = new Set();
+  const seenMessageIds = new Set();
 
-  function getActiveChatId() {
-    const headerTitle =
+  function getChatTitle() {
+    const titleNode =
       document.querySelector('[data-testid="conversation-info-header"] span[title]') ||
       document.querySelector('header span[title]');
-    return headerTitle?.getAttribute("title") || "unknown-chat";
+    return titleNode?.getAttribute("title") || "unknown-chat";
+  }
+
+  function getMessageId(node) {
+    return (
+      node.getAttribute("data-id") ||
+      node.dataset?.id ||
+      node.getAttribute("data-message-id") ||
+      node.querySelector("[data-id]")?.getAttribute("data-id") ||
+      `${getChatTitle()}-${(node.innerText || "").slice(0, 100)}`
+    );
   }
 
   function extractIncomingText(messageNode) {
     const textNodes = messageNode.querySelectorAll(".selectable-text span");
     const text = Array.from(textNodes)
-      .map((el) => el.textContent?.trim() || "")
+      .map((item) => item.textContent?.trim() || "")
       .filter(Boolean)
       .join(" ")
       .trim();
-    return text;
+
+    if (text) return text;
+
+    const fallback = messageNode.innerText?.trim() || "";
+    return fallback;
   }
 
-  function postIncoming(text) {
-    const chatId = getActiveChatId();
+  function postIncomingMessage(text, messageId) {
+    if (!text) return;
+
     window.postMessage(
       {
         source: "CRMDECISAO_INJECT",
         type: "CRMDECISAO_INCOMING_MESSAGE",
         payload: {
-          chatId,
+          chatId: getChatTitle(),
           text,
+          messageId,
           receivedAt: Date.now()
         }
       },
@@ -34,56 +50,52 @@
     );
   }
 
-  function observeIncoming() {
+  function markExistingAsSeen() {
+    document.querySelectorAll("#main .message-in").forEach((node) => {
+      const messageId = getMessageId(node);
+      seenMessageIds.add(messageId);
+    });
+  }
+
+  function observeIncomingMessages() {
     const target = document.querySelector("#main") || document.body;
     if (!target) return;
 
     const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          if (!(node instanceof HTMLElement)) return;
+      for (const mutation of mutations) {
+        for (const addedNode of mutation.addedNodes) {
+          if (!(addedNode instanceof HTMLElement)) continue;
 
-          const incoming =
-            node.matches?.(".message-in") ? node : node.querySelector?.(".message-in");
-          if (!incoming) return;
+          const incomingNodes = [];
+          if (addedNode.matches?.(".message-in")) incomingNodes.push(addedNode);
+          incomingNodes.push(...addedNode.querySelectorAll?.(".message-in") || []);
 
-          const msgId =
-            incoming.getAttribute("data-id") ||
-            incoming.dataset?.id ||
-            `${getActiveChatId()}-${incoming.innerText.slice(0, 80)}`;
+          for (const incomingNode of incomingNodes) {
+            const messageId = getMessageId(incomingNode);
+            if (seenMessageIds.has(messageId)) continue;
 
-          if (processedMessages.has(msgId)) return;
-          processedMessages.add(msgId);
-
-          const text = extractIncomingText(incoming);
-          if (!text) return;
-          postIncoming(text);
-        });
-      });
+            seenMessageIds.add(messageId);
+            const text = extractIncomingText(incomingNode);
+            postIncomingMessage(text, messageId);
+          }
+        }
+      }
     });
 
     observer.observe(target, { childList: true, subtree: true });
-  }
-
-  async function sendViaWpp(chatId, text) {
-    try {
-      if (window.WAPLUS_WPP?.chat?.sendTextMessage) {
-        await window.WAPLUS_WPP.chat.sendTextMessage(chatId, text);
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
   }
 
   function sendViaDom(text) {
     const input =
       document.querySelector('[data-testid="conversation-compose-box-input"] p') ||
       document.querySelector('footer [contenteditable="true"]');
+
     if (!input) return false;
 
     input.focus();
+    input.dispatchEvent(new Event("focus", { bubbles: true }));
+
+    document.execCommand("selectAll", false);
     document.execCommand("insertText", false, text);
 
     const sendButton =
@@ -95,8 +107,27 @@
     return true;
   }
 
+  async function sendViaInternalApi(chatId, text) {
+    try {
+      if (window.WAPLUS_WPP?.chat?.sendTextMessage) {
+        await window.WAPLUS_WPP.chat.sendTextMessage(chatId, text);
+        return true;
+      }
+
+      if (window.WPP?.chat?.sendTextMessage) {
+        await window.WPP.chat.sendTextMessage(chatId, text);
+        return true;
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
   window.addEventListener("message", async (event) => {
     if (event.source !== window) return;
+
     const data = event.data;
     if (!data || data.source !== "CRMDECISAO_CONTENT") return;
     if (data.type !== "CRMDECISAO_SEND_REPLY") return;
@@ -104,9 +135,10 @@
     const { chatId, text } = data.payload || {};
     if (!text) return;
 
-    const sentByApi = await sendViaWpp(chatId, text);
+    const sentByApi = await sendViaInternalApi(chatId, text);
     if (!sentByApi) sendViaDom(text);
   });
 
-  observeIncoming();
+  markExistingAsSeen();
+  observeIncomingMessages();
 })();
