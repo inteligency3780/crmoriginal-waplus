@@ -1,42 +1,27 @@
-# CRM Decisão (branch crmdecisao)
+# CRM Decisão (branch `crmdecisao`)
 
-Nova extensão inspirada no comportamento do projeto principal, com interface lateral e foco em operação de atendimento.
+Interface nova no estilo do layout de referência (tema escuro + sidebar à esquerda).
 
-## Abas no sidebar esquerdo
-- DASHBOARD
-- FUNIL
-- FOLLOWUP
-- NOTIFICAÇÕES
-- MEMBROS
-- ADMIN
-- WHATSAPP
+## Ordem das abas (como no design)
+1. Dashboard
+2. WhatsApp
+3. Funil
+4. Follow-Up
+5. Notificações
+6. Membros
+7. Administrador
 
 ## WhatsApp
-- Visível apenas na aba **WHATSAPP**.
+- Exibido somente na aba **WhatsApp**.
 - Categorias: **GERAL, COMERCIAL, FINANCEIRO, TEÓRICO, PRÁTICO**.
-- Filtros: **TODAS, MINHAS, NÃO LIDAS**.
-- IA ativa por padrão e switch individual por conversa.
+- Visão: **TODAS, MINHAS, NÃO LIDAS**.
+- IA ativa por padrão em cada conversa e switch individual por chat.
 
-## Integração de IA
-A aba WhatsApp usa o endpoint Supabase informado para gerar resposta automática quando o switch da conversa está ativo.
-
-### Endpoint
-`POST https://lkoutxybaupxjoggxayb.supabase.co/functions/v1/groq-chat`
+## IA
+Requisição `POST` para:
+`https://lkoutxybaupxjoggxayb.supabase.co/functions/v1/groq-chat`
 
 Headers:
 - `Content-Type: application/json`
 - `Authorization: Bearer <token>`
 - `apikey: <token>`
-
-Body:
-```json
-{
-  "messages": [
-    { "role": "system", "content": "Você é um assistente útil." },
-    { "role": "user", "content": "Olá, como vai?" }
-  ],
-  "model": "llama-3.3-70b-versatile",
-  "temperature": 0.7,
-  "max_tokens": 1024
-}
-```

@@ -7,85 +7,71 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="app">
+    <div class="layout">
       <aside class="sidebar">
-        <h1>CRM Decisão</h1>
-        <nav id="main-tabs">
-          <button class="tab active" data-tab="dashboard">DASHBOARD</button>
-          <button class="tab" data-tab="funil">FUNIL</button>
-          <button class="tab" data-tab="followup">FOLLOWUP</button>
-          <button class="tab" data-tab="notificacoes">NOTIFICAÇÕES</button>
-          <button class="tab" data-tab="membros">MEMBROS</button>
-          <button class="tab" data-tab="admin">ADMIN</button>
-          <button class="tab" data-tab="whatsapp">WHATSAPP</button>
-        </nav>
+        <div class="brand">AUTOESCOLA <strong>DECISÃO</strong></div>
+
+        <div class="menu-group">
+          <p class="menu-title">// NAVEGAÇÃO</p>
+          <button class="menu-item active" data-tab="dashboard">Dashboard</button>
+          <button class="menu-item" data-tab="whatsapp">WhatsApp</button>
+          <button class="menu-item" data-tab="funil">Funil</button>
+          <button class="menu-item" data-tab="followup">Follow-Up</button>
+          <button class="menu-item" data-tab="notificacoes">Notificações</button>
+          <button class="menu-item" data-tab="membros">Membros</button>
+        </div>
+
+        <div class="menu-group">
+          <p class="menu-title">// ADMIN</p>
+          <button class="menu-item" data-tab="admin">Administrador</button>
+        </div>
       </aside>
 
       <main class="content">
+        <header class="topbar">
+          <div>
+            <h1 id="page-title">Dashboard</h1>
+            <p id="page-subtitle">Bem-vindo ao painel de controle da AutoEscola Decisão</p>
+          </div>
+          <div class="user-pill">Rodrigo Amaral</div>
+        </header>
+
         <section class="panel active" id="dashboard">
-          <h2>Dashboard</h2>
-          <p>Visão geral de KPIs e atividades do CRM.</p>
+          <div class="cards-grid">
+            <article class="metric-card"><h3>Total de Conversas</h3><strong>224</strong><span>Conversas no WhatsApp</span></article>
+            <article class="metric-card"><h3>Conversas Ativas Hoje</h3><strong>0</strong><span>Com movimentação hoje</span></article>
+            <article class="metric-card"><h3>Vendas Hoje</h3><strong>0</strong><span>Baseado na aba CRM mapeada</span></article>
+            <article class="metric-card"><h3>Aulas Hoje</h3><strong>0</strong><span>Agendamentos do dia</span></article>
+            <article class="metric-card"><h3>Agendamentos Totais</h3><strong>0</strong><span>Agendamentos futuros</span></article>
+            <article class="metric-card"><h3>Time Online</h3><strong>1</strong><span>Membros ativos agora</span></article>
+          </div>
         </section>
 
-        <section class="panel" id="funil">
-          <h2>Funil</h2>
-          <p>Pipeline de oportunidades por etapa.</p>
-        </section>
-
-        <section class="panel" id="followup">
-          <h2>Followup</h2>
-          <p>Acompanhamentos pendentes e próximos contatos.</p>
-        </section>
-
-        <section class="panel" id="notificacoes">
-          <h2>Notificações</h2>
-          <p>Alertas operacionais e lembretes de time.</p>
-        </section>
-
-        <section class="panel" id="membros">
-          <h2>Membros</h2>
-          <p>Gestão dos integrantes e permissões.</p>
-        </section>
-
-        <section class="panel" id="admin">
-          <h2>Admin</h2>
-          <p>Configurações administrativas e integrações.</p>
-        </section>
+        <section class="panel" id="funil"><div class="empty">Visão de Funil</div></section>
+        <section class="panel" id="followup"><div class="empty">Visão de Follow-Up</div></section>
+        <section class="panel" id="notificacoes"><div class="empty">Notificações</div></section>
+        <section class="panel" id="membros"><div class="empty">Membros da equipe</div></section>
+        <section class="panel" id="admin"><div class="empty">Configurações de administrador</div></section>
 
         <section class="panel" id="whatsapp">
-          <div class="wa-header">
-            <h2>WhatsApp</h2>
-            <p>Operação de conversas com IA por contato.</p>
-          </div>
-
-          <div class="filters-row">
-            <div>
-              <span class="filter-label">Categorias:</span>
+          <div class="wa-shell">
+            <aside class="wa-list">
+              <div class="search">Pesquisar ou começar uma nova conversa</div>
               <div class="chips" id="category-chips">
-                <button class="chip active" data-category="GERAL">GERAL</button>
-                <button class="chip" data-category="COMERCIAL">COMERCIAL</button>
-                <button class="chip" data-category="FINANCEIRO">FINANCEIRO</button>
-                <button class="chip" data-category="TEORICO">TEÓRICO</button>
-                <button class="chip" data-category="PRATICO">PRÁTICO</button>
+                <button class="chip active" data-category="GERAL">Geral</button>
+                <button class="chip" data-category="COMERCIAL">Comercial</button>
+                <button class="chip" data-category="FINANCEIRO">Financeiro</button>
+                <button class="chip" data-category="TEORICO">Teórico</button>
+                <button class="chip" data-category="PRATICO">Prático</button>
               </div>
-            </div>
-
-            <div>
-              <span class="filter-label">Visualização:</span>
               <div class="chips" id="view-chips">
-                <button class="chip active" data-view="TODAS">TODAS</button>
-                <button class="chip" data-view="MINHAS">MINHAS</button>
-                <button class="chip" data-view="NAO_LIDAS">NÃO LIDAS</button>
+                <button class="chip active" data-view="TODAS">Todas</button>
+                <button class="chip" data-view="MINHAS">Minhas conversas</button>
+                <button class="chip" data-view="NAO_LIDAS">Não lidas</button>
               </div>
-            </div>
-          </div>
-
-          <div class="wa-layout">
-            <aside class="chat-list" id="chat-list"></aside>
-
-            <section class="chat-panel" id="chat-panel">
-              <p>Selecione uma conversa para começar.</p>
-            </section>
+              <div id="chat-list"></div>
+            </aside>
+            <section class="wa-chat" id="chat-panel"><div class="wa-empty">Selecione uma conversa</div></section>
           </div>
         </section>
       </main>
