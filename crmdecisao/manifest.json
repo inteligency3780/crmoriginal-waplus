@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "CRM Decisão",
+  "description": "Nova interface CRM inspirada no main com aba WhatsApp e IA por conversa.",
+  "version": "0.1.0",
+  "action": {
+    "default_title": "CRM Decisão",
+    "default_popup": "popup.html"
+  },
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://lkoutxybaupxjoggxayb.supabase.co/*"
+  ]
+}

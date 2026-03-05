@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRM Decisão</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <h1>CRM Decisão</h1>
+        <nav id="main-tabs">
+          <button class="tab active" data-tab="dashboard">DASHBOARD</button>
+          <button class="tab" data-tab="funil">FUNIL</button>
+          <button class="tab" data-tab="followup">FOLLOWUP</button>
+          <button class="tab" data-tab="notificacoes">NOTIFICAÇÕES</button>
+          <button class="tab" data-tab="membros">MEMBROS</button>
+          <button class="tab" data-tab="admin">ADMIN</button>
+          <button class="tab" data-tab="whatsapp">WHATSAPP</button>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <section class="panel active" id="dashboard">
+          <h2>Dashboard</h2>
+          <p>Visão geral de KPIs e atividades do CRM.</p>
+        </section>
+
+        <section class="panel" id="funil">
+          <h2>Funil</h2>
+          <p>Pipeline de oportunidades por etapa.</p>
+        </section>
+
+        <section class="panel" id="followup">
+          <h2>Followup</h2>
+          <p>Acompanhamentos pendentes e próximos contatos.</p>
+        </section>
+
+        <section class="panel" id="notificacoes">
+          <h2>Notificações</h2>
+          <p>Alertas operacionais e lembretes de time.</p>
+        </section>
+
+        <section class="panel" id="membros">
+          <h2>Membros</h2>
+          <p>Gestão dos integrantes e permissões.</p>
+        </section>
+
+        <section class="panel" id="admin">
+          <h2>Admin</h2>
+          <p>Configurações administrativas e integrações.</p>
+        </section>
+
+        <section class="panel" id="whatsapp">
+          <div class="wa-header">
+            <h2>WhatsApp</h2>
+            <p>Operação de conversas com IA por contato.</p>
+          </div>
+
+          <div class="filters-row">
+            <div>
+              <span class="filter-label">Categorias:</span>
+              <div class="chips" id="category-chips">
+                <button class="chip active" data-category="GERAL">GERAL</button>
+                <button class="chip" data-category="COMERCIAL">COMERCIAL</button>
+                <button class="chip" data-category="FINANCEIRO">FINANCEIRO</button>
+                <button class="chip" data-category="TEORICO">TEÓRICO</button>
+                <button class="chip" data-category="PRATICO">PRÁTICO</button>
+              </div>
+            </div>
+
+            <div>
+              <span class="filter-label">Visualização:</span>
+              <div class="chips" id="view-chips">
+                <button class="chip active" data-view="TODAS">TODAS</button>
+                <button class="chip" data-view="MINHAS">MINHAS</button>
+                <button class="chip" data-view="NAO_LIDAS">NÃO LIDAS</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="wa-layout">
+            <aside class="chat-list" id="chat-list"></aside>
+
+            <section class="chat-panel" id="chat-panel">
+              <p>Selecione uma conversa para começar.</p>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
