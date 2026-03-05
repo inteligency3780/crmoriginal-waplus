@@ -3,15 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
     <title>CRM Decisão</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="layout">
-      <aside class="sidebar">
-        <div class="brand">AUTOESCOLA <strong>DECISÃO</strong></div>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navegação principal">
+        <div class="brand-block">
+          <span class="brand-title">DECISÃO</span>
+          <span class="brand-subtitle">AUTOESCOLA</span>
+        </div>
 
-        <div class="menu-group">
+        <nav class="menu-group">
           <p class="menu-title">// NAVEGAÇÃO</p>
           <button class="menu-item active" data-tab="dashboard">Dashboard</button>
           <button class="menu-item" data-tab="whatsapp">WhatsApp</button>
@@ -19,32 +23,41 @@
           <button class="menu-item" data-tab="followup">Follow-Up</button>
           <button class="menu-item" data-tab="notificacoes">Notificações</button>
           <button class="menu-item" data-tab="membros">Membros</button>
-        </div>
+        </nav>
 
-        <div class="menu-group">
+        <nav class="menu-group menu-admin">
           <p class="menu-title">// ADMIN</p>
           <button class="menu-item" data-tab="admin">Administrador</button>
-        </div>
+        </nav>
       </aside>
 
       <main class="content">
         <header class="topbar">
-          <div>
+          <div class="title-wrap">
             <h1 id="page-title">Dashboard</h1>
-            <p id="page-subtitle">Bem-vindo ao painel de controle da AutoEscola Decisão</p>
+            <p id="page-subtitle">Painel de controle da AutoEscola Decisão</p>
           </div>
-          <div class="user-pill">Rodrigo Amaral</div>
+
+          <div class="user-pill">
+            <strong>Rodrigo Amaral</strong>
+            <span>rodrigo@decisao.com</span>
+          </div>
         </header>
 
         <section class="panel active" id="dashboard">
           <div class="cards-grid">
             <article class="metric-card"><h3>Total de Conversas</h3><strong>224</strong><span>Conversas no WhatsApp</span></article>
-            <article class="metric-card"><h3>Conversas Ativas Hoje</h3><strong>0</strong><span>Com movimentação hoje</span></article>
-            <article class="metric-card"><h3>Vendas Hoje</h3><strong>0</strong><span>Baseado na aba CRM mapeada</span></article>
+            <article class="metric-card"><h3>Ativas Hoje</h3><strong>0</strong><span>Com movimentação hoje</span></article>
+            <article class="metric-card"><h3>Vendas Hoje</h3><strong>0</strong><span>Registradas no CRM</span></article>
             <article class="metric-card"><h3>Aulas Hoje</h3><strong>0</strong><span>Agendamentos do dia</span></article>
-            <article class="metric-card"><h3>Agendamentos Totais</h3><strong>0</strong><span>Agendamentos futuros</span></article>
+            <article class="metric-card"><h3>Agendamentos</h3><strong>0</strong><span>Agendamentos futuros</span></article>
             <article class="metric-card"><h3>Time Online</h3><strong>1</strong><span>Membros ativos agora</span></article>
           </div>
+
+          <section class="big-card">
+            <h3>Desempenho — Vendas Março</h3>
+            <p>Sem dados ainda</p>
+          </section>
         </section>
 
         <section class="panel" id="funil"><div class="empty">Visão de Funil</div></section>
@@ -71,7 +84,10 @@
               </div>
               <div id="chat-list"></div>
             </aside>
-            <section class="wa-chat" id="chat-panel"><div class="wa-empty">Selecione uma conversa</div></section>
+
+            <section class="wa-chat" id="chat-panel">
+              <div class="wa-empty">Selecione uma conversa</div>
+            </section>
           </div>
         </section>
       </main>
