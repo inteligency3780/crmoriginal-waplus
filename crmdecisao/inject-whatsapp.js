@@ -8,14 +8,25 @@
     return titleNode?.getAttribute("title") || "unknown-chat";
   }
 
-  function getMessageId(node) {
+  function extractChatIdFromDataId(dataId = "") {
+    const match = dataId.match(/_([^_]+@(?:c|g)\.us)_/);
+    return match?.[1] || null;
+  }
+
+  function getRawDataId(node) {
     return (
       node.getAttribute("data-id") ||
       node.dataset?.id ||
       node.getAttribute("data-message-id") ||
       node.querySelector("[data-id]")?.getAttribute("data-id") ||
-      `${getChatTitle()}-${(node.innerText || "").slice(0, 100)}`
+      ""
     );
+  }
+
+  function getMessageId(node) {
+    const rawId = getRawDataId(node);
+    if (rawId) return rawId;
+    return `${getChatTitle()}-${(node.innerText || "").slice(0, 100)}`;
   }
 
   function extractIncomingText(messageNode) {
@@ -27,12 +38,10 @@
       .trim();
 
     if (text) return text;
-
-    const fallback = messageNode.innerText?.trim() || "";
-    return fallback;
+    return messageNode.innerText?.trim() || "";
   }
 
-  function postIncomingMessage(text, messageId) {
+  function postIncomingMessage({ text, messageId, chatId }) {
     if (!text) return;
 
     window.postMessage(
@@ -40,7 +49,8 @@
         source: "CRMDECISAO_INJECT",
         type: "CRMDECISAO_INCOMING_MESSAGE",
         payload: {
-          chatId: getChatTitle(),
+          chatId,
+          chatLabel: getChatTitle(),
           text,
           messageId,
           receivedAt: Date.now()
@@ -52,8 +62,7 @@
 
   function markExistingAsSeen() {
     document.querySelectorAll("#main .message-in").forEach((node) => {
-      const messageId = getMessageId(node);
-      seenMessageIds.add(messageId);
+      seenMessageIds.add(getMessageId(node));
     });
   }
 
@@ -68,15 +77,17 @@
 
           const incomingNodes = [];
           if (addedNode.matches?.(".message-in")) incomingNodes.push(addedNode);
-          incomingNodes.push(...addedNode.querySelectorAll?.(".message-in") || []);
+          incomingNodes.push(...(addedNode.querySelectorAll?.(".message-in") || []));
 
           for (const incomingNode of incomingNodes) {
             const messageId = getMessageId(incomingNode);
             if (seenMessageIds.has(messageId)) continue;
 
             seenMessageIds.add(messageId);
+            const rawDataId = getRawDataId(incomingNode);
+            const chatId = extractChatIdFromDataId(rawDataId) || getChatTitle();
             const text = extractIncomingText(incomingNode);
-            postIncomingMessage(text, messageId);
+            postIncomingMessage({ text, messageId, chatId });
           }
         }
       }
@@ -93,17 +104,20 @@
     if (!input) return false;
 
     input.focus();
-    input.dispatchEvent(new Event("focus", { bubbles: true }));
-
-    document.execCommand("selectAll", false);
-    document.execCommand("insertText", false, text);
+    input.textContent = text;
+    input.dispatchEvent(new InputEvent("input", { bubbles: true, data: text, inputType: "insertText" }));
 
     const sendButton =
       document.querySelector('[data-testid="send"]') ||
       document.querySelector('button span[data-icon="send"]')?.closest("button");
 
-    if (!sendButton) return false;
-    sendButton.click();
+    if (sendButton) {
+      sendButton.click();
+      return true;
+    }
+
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", code: "Enter", which: 13, keyCode: 13, bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent("keyup", { key: "Enter", code: "Enter", which: 13, keyCode: 13, bubbles: true }));
     return true;
   }
 
@@ -135,7 +149,7 @@
     const { chatId, text } = data.payload || {};
     if (!text) return;
 
-    const sentByApi = await sendViaInternalApi(chatId, text);
+    const sentByApi = chatId ? await sendViaInternalApi(chatId, text) : false;
     if (!sentByApi) sendViaDom(text);
   });
 

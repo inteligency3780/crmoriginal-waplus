@@ -3,7 +3,7 @@
 Interface no estilo dark com sidebar à esquerda, inspirada no main.
 
 ## Versão
-- `3.0.5`
+- `3.0.6`
 
 ## Ordem das abas
 1. Dashboard
@@ -18,11 +18,11 @@ Interface no estilo dark com sidebar à esquerda, inspirada no main.
 A automação de IA foi estruturada em **3 etapas**:
 
 1. **Recebimento** (lado WhatsApp Web)
-   - `inject-whatsapp.js` observa `message-in` novas no DOM e envia evento estruturado para o content script.
+   - `inject-whatsapp.js` observa `message-in` novas no DOM e envia evento estruturado para o content script, preservando `chatId` em formato WhatsApp (`@c.us`/`@g.us`) quando disponível.
 2. **Processamento** (seu backend)
    - `content-script.js` chama o endpoint Supabase informado com o payload da mensagem do cliente.
 3. **Resposta** (lado WhatsApp Web)
-   - `inject-whatsapp.js` envia resposta usando API interna (`WAPLUS_WPP`/`WPP`) com fallback para envio por DOM.
+   - `inject-whatsapp.js` envia resposta usando API interna (`WAPLUS_WPP`/`WPP`) com fallback robusto por DOM para manter funcionamento entre variações de UI do navegador/WhatsApp Web.
 
 ## IA por conversa
 - IA ativa por padrão.

@@ -20,6 +20,7 @@ html,
 body {
   margin: 0;
   height: 100%;
+  width: 100%;
   font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
@@ -28,12 +29,15 @@ body {
 body {
   background-image: var(--bg-grid);
   background-size: 64px 64px;
+  min-width: 1180px;
+  overflow: hidden;
 }
 
 .app-shell {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100vh;
+  width: 100%;
 }
 
 .sidebar {
@@ -44,6 +48,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 .brand-block {
@@ -161,6 +166,7 @@ body {
   padding: 16px;
   min-height: 0;
   overflow: auto;
+  overflow-x: hidden;
 }
 
 .panel.active {
@@ -241,7 +247,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
-  min-height: 560px;
+  min-height: min(560px, calc(100vh - 170px));
   background: #0a1118;
   display: grid;
   grid-template-columns: minmax(320px, 38%) minmax(0, 1fr);
@@ -415,6 +421,11 @@ body {
 }
 
 @media (max-width: 960px) {
+  body {
+    min-width: 100%;
+    overflow: auto;
+  }
+
   .app-shell {
     grid-template-columns: 1fr;
   }
