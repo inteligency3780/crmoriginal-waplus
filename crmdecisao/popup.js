@@ -4,7 +4,7 @@ const AI_TOKEN =
 
 const TAB_TITLES = {
   dashboard: ["Dashboard", "Bem-vindo ao painel de controle da AutoEscola Decisão"],
-  whatsapp: ["WhatsApp", "Envie e receba mensagens dos seus alunos"],
+  whatsapp: ["WhatsApp", "Recebimento, processamento e resposta automática com IA"],
   funil: ["Funil", "Acompanhe cada etapa das oportunidades"],
   followup: ["Follow-Up", "Organize retornos e próximos contatos"],
   notificacoes: ["Notificações", "Alertas e avisos operacionais"],
@@ -19,13 +19,38 @@ const state = {
   selectedChatId: null,
   myUser: "Rodrigo Amaral",
   chats: [
-    { id: "1", name: "553492392400", category: "GERAL", owner: "Rodrigo Amaral", unread: true, aiEnabled: true, messages: [{ role: "customer", content: "De carro ou moto são os melhores valores" }] },
-    { id: "2", name: "554196971968", category: "COMERCIAL", owner: "Rodrigo Amaral", unread: true, aiEnabled: true, messages: [{ role: "customer", content: "De instrutor eu já estava acostumado" }] },
-    { id: "3", name: "558181635648", category: "FINANCEIRO", owner: "Outro usuário", unread: false, aiEnabled: true, messages: [{ role: "customer", content: "Qual das opções você quer?" }] },
-    { id: "4", name: "554198691537", category: "TEORICO", owner: "Rodrigo Amaral", unread: false, aiEnabled: true, messages: [{ role: "customer", content: "Vocês têm turma teórica noturna?" }] },
-    { id: "5", name: "Autoescola Decisão", category: "PRATICO", owner: "Rodrigo Amaral", unread: true, aiEnabled: true, messages: [{ role: "customer", content: "Boa noite" }] }
+    { id: "553492392400", name: "553492392400", category: "GERAL", owner: "Rodrigo Amaral", unread: true, aiEnabled: true, messages: [{ role: "customer", content: "De carro ou moto são os melhores valores" }] },
+    { id: "554196971968", name: "554196971968", category: "COMERCIAL", owner: "Rodrigo Amaral", unread: true, aiEnabled: true, messages: [{ role: "customer", content: "De instrutor eu já estava acostumado" }] },
+    { id: "558181635648", name: "558181635648", category: "FINANCEIRO", owner: "Outro usuário", unread: false, aiEnabled: true, messages: [{ role: "customer", content: "Qual das opções você quer?" }] },
+    { id: "554198691537", name: "554198691537", category: "TEORICO", owner: "Rodrigo Amaral", unread: false, aiEnabled: true, messages: [{ role: "customer", content: "Vocês têm turma teórica noturna?" }] },
+    { id: "Autoescola Decisão", name: "Autoescola Decisão", category: "PRATICO", owner: "Rodrigo Amaral", unread: true, aiEnabled: true, messages: [{ role: "customer", content: "Boa noite" }] }
   ]
 };
+
+async function loadAiRules() {
+  const { crmDecisaoAiRules } = await chrome.storage.local.get("crmDecisaoAiRules");
+  if (!crmDecisaoAiRules) return;
+
+  state.chats.forEach((chat) => {
+    chat.aiEnabled = crmDecisaoAiRules.chatEnabled?.[chat.id] ?? true;
+  });
+}
+
+async function saveChatAiRule(chatId, enabled) {
+  const { crmDecisaoAiRules } = await chrome.storage.local.get("crmDecisaoAiRules");
+  const rules = crmDecisaoAiRules || { globalEnabled: true, chatEnabled: {} };
+  rules.chatEnabled[chatId] = enabled;
+  await chrome.storage.local.set({ crmDecisaoAiRules: rules });
+
+  const tabs = await chrome.tabs.query({ url: "https://web.whatsapp.com/*" });
+  tabs.forEach((tab) => {
+    chrome.tabs.sendMessage(tab.id, {
+      type: "CRMDECISAO_UPDATE_CHAT_AI",
+      chatId,
+      enabled
+    });
+  });
+}
 
 function setHeader(tab) {
   const [title, subtitle] = TAB_TITLES[tab] || TAB_TITLES.dashboard;
@@ -176,8 +201,9 @@ function renderChatPanel() {
     </div>
   `;
 
-  root.querySelector("#chat-ai-switch").addEventListener("change", (event) => {
+  root.querySelector("#chat-ai-switch").addEventListener("change", async (event) => {
     chat.aiEnabled = event.target.checked;
+    await saveChatAiRule(chat.id, chat.aiEnabled);
   });
 
   root.querySelector("#simulate-btn").addEventListener("click", async () => {
@@ -219,6 +245,9 @@ function renderChatPanel() {
   messagesBox.scrollTop = messagesBox.scrollHeight;
 }
 
-initTabs();
-initFilters();
-setHeader(state.tab);
+(async function init() {
+  await loadAiRules();
+  initTabs();
+  initFilters();
+  setHeader(state.tab);
+})();

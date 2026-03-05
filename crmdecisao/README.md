@@ -1,8 +1,8 @@
 # CRM Decisão (branch `crmdecisao`)
 
-Interface nova no estilo do layout de referência (tema escuro + sidebar à esquerda).
+Interface no estilo dark com sidebar à esquerda, inspirada no main.
 
-## Ordem das abas (como no design)
+## Ordem das abas
 1. Dashboard
 2. WhatsApp
 3. Funil
@@ -11,17 +11,20 @@ Interface nova no estilo do layout de referência (tema escuro + sidebar à esqu
 6. Membros
 7. Administrador
 
-## WhatsApp
-- Exibido somente na aba **WhatsApp**.
-- Categorias: **GERAL, COMERCIAL, FINANCEIRO, TEÓRICO, PRÁTICO**.
-- Visão: **TODAS, MINHAS, NÃO LIDAS**.
-- IA ativa por padrão em cada conversa e switch individual por chat.
+## Pipeline da IA (igual conceito do main)
+A automação de IA foi estruturada em **3 etapas**:
 
-## IA
-Requisição `POST` para:
-`https://lkoutxybaupxjoggxayb.supabase.co/functions/v1/groq-chat`
+1. **Recebimento** (no WhatsApp Web)
+   - `inject-whatsapp.js` observa mensagens novas recebidas (`message-in`) e envia evento para o `content-script.js`.
+2. **Processamento** (no seu backend)
+   - `content-script.js` chama o endpoint Supabase informado com o payload de mensagens.
+3. **Resposta** (de volta no WhatsApp)
+   - `inject-whatsapp.js` tenta responder com API interna (`WAPLUS_WPP.chat.sendTextMessage`) e usa fallback por DOM quando necessário.
 
-Headers:
-- `Content-Type: application/json`
-- `Authorization: Bearer <token>`
-- `apikey: <token>`
+## IA por conversa
+- IA ativa por padrão.
+- Switch por conversa no popup.
+- Preferências por chat ficam salvas em `chrome.storage.local` e são enviadas para a aba do WhatsApp.
+
+## Endpoint de processamento
+`POST https://lkoutxybaupxjoggxayb.supabase.co/functions/v1/groq-chat`
