@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>CRM Decisão</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navegação principal">
+        <div class="brand-block">
+          <span class="brand-title">DECISÃO</span>
+          <span class="brand-subtitle">AUTOESCOLA</span>
+        </div>
+
+        <nav class="menu-group">
+          <p class="menu-title">// NAVEGAÇÃO</p>
+          <button class="menu-item active" data-tab="dashboard">Dashboard</button>
+          <button class="menu-item" data-tab="whatsapp">WhatsApp</button>
+          <button class="menu-item" data-tab="funil">Funil</button>
+          <button class="menu-item" data-tab="followup">Follow-Up</button>
+          <button class="menu-item" data-tab="notificacoes">Notificações</button>
+          <button class="menu-item" data-tab="membros">Membros</button>
+        </nav>
+
+        <nav class="menu-group menu-admin">
+          <p class="menu-title">// ADMIN</p>
+          <button class="menu-item" data-tab="admin">Administrador</button>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div class="title-wrap">
+            <h1 id="page-title">Dashboard</h1>
+            <p id="page-subtitle">Painel de controle da AutoEscola Decisão</p>
+          </div>
+
+          <div class="user-pill">
+            <strong>Rodrigo Amaral</strong>
+            <span>rodrigo@decisao.com</span>
+          </div>
+        </header>
+
+        <section class="panel active" id="dashboard">
+          <div class="cards-grid">
+            <article class="metric-card"><h3>Total de Conversas</h3><strong>224</strong><span>Conversas no WhatsApp</span></article>
+            <article class="metric-card"><h3>Ativas Hoje</h3><strong>0</strong><span>Com movimentação hoje</span></article>
+            <article class="metric-card"><h3>Vendas Hoje</h3><strong>0</strong><span>Registradas no CRM</span></article>
+            <article class="metric-card"><h3>Aulas Hoje</h3><strong>0</strong><span>Agendamentos do dia</span></article>
+            <article class="metric-card"><h3>Agendamentos</h3><strong>0</strong><span>Agendamentos futuros</span></article>
+            <article class="metric-card"><h3>Time Online</h3><strong>1</strong><span>Membros ativos agora</span></article>
+          </div>
+
+          <section class="big-card">
+            <h3>Desempenho — Vendas Março</h3>
+            <p>Sem dados ainda</p>
+          </section>
+        </section>
+
+        <section class="panel" id="funil"><div class="empty">Visão de Funil</div></section>
+        <section class="panel" id="followup"><div class="empty">Visão de Follow-Up</div></section>
+        <section class="panel" id="notificacoes"><div class="empty">Notificações</div></section>
+        <section class="panel" id="membros"><div class="empty">Membros da equipe</div></section>
+        <section class="panel" id="admin"><div class="empty">Configurações de administrador</div></section>
+
+        <section class="panel" id="whatsapp">
+          <div class="wa-shell">
+            <aside class="wa-list">
+              <div class="search">Pesquisar ou começar uma nova conversa</div>
+              <div class="chips" id="category-chips">
+                <button class="chip active" data-category="GERAL">Geral</button>
+                <button class="chip" data-category="COMERCIAL">Comercial</button>
+                <button class="chip" data-category="FINANCEIRO">Financeiro</button>
+                <button class="chip" data-category="TEORICO">Teórico</button>
+                <button class="chip" data-category="PRATICO">Prático</button>
+              </div>
+              <div class="chips" id="view-chips">
+                <button class="chip active" data-view="TODAS">Todas</button>
+                <button class="chip" data-view="MINHAS">Minhas conversas</button>
+                <button class="chip" data-view="NAO_LIDAS">Não lidas</button>
+              </div>
+              <div id="chat-list"></div>
+            </aside>
+
+            <section class="wa-chat" id="chat-panel">
+              <div class="wa-empty">Selecione uma conversa</div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
