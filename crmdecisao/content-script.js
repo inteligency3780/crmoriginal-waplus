@@ -2,13 +2,16 @@ const AI_ENDPOINT = "https://lkoutxybaupxjoggxayb.supabase.co/functions/v1/groq-
 const AI_TOKEN =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxrb3V0eHliYXVweGpvZ2d4YXliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2OTQxMjYsImV4cCI6MjA4ODI3MDEyNn0.js0oKNSXhAhW6QE-pVqFY22S15XCukj6KNtnq0VsfLM";
 
-const processedIncoming = new Set();
+const processedIncoming = new Map();
+const MAX_TRACKED_MESSAGES = 800;
 
 function injectBridge() {
   if (document.getElementById("crmdecisao-inject")) return;
+
   const script = document.createElement("script");
   script.id = "crmdecisao-inject";
   script.src = chrome.runtime.getURL("inject-whatsapp.js");
+  script.async = false;
   (document.head || document.documentElement).appendChild(script);
 }
 
@@ -17,35 +20,63 @@ async function loadRules() {
   return crmDecisaoAiRules || { globalEnabled: true, chatEnabled: {} };
 }
 
+function cleanupProcessedIncoming() {
+  if (processedIncoming.size <= MAX_TRACKED_MESSAGES) return;
+  const oldestKeys = [...processedIncoming.entries()]
+    .sort((a, b) => a[1] - b[1])
+    .slice(0, processedIncoming.size - MAX_TRACKED_MESSAGES)
+    .map(([key]) => key);
+  oldestKeys.forEach((key) => processedIncoming.delete(key));
+}
+
+function extractReply(data) {
+  return (
+    data?.choices?.[0]?.message?.content ||
+    data?.reply ||
+    data?.response ||
+    data?.text ||
+    ""
+  );
+}
+
 async function requestAIReply(customerMessage) {
-  const response = await fetch(AI_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${AI_TOKEN}`,
-      apikey: AI_TOKEN
-    },
-    body: JSON.stringify({
-      messages: [
-        { role: "system", content: "Você é um assistente útil." },
-        { role: "user", content: customerMessage }
-      ],
-      model: "llama-3.3-70b-versatile",
-      temperature: 0.7,
-      max_tokens: 1024
-    })
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25000);
 
-  if (!response.ok) throw new Error(`Falha IA (${response.status})`);
+  try {
+    const response = await fetch(AI_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${AI_TOKEN}`,
+        apikey: AI_TOKEN
+      },
+      body: JSON.stringify({
+        messages: [
+          { role: "system", content: "Você é um assistente útil." },
+          { role: "user", content: customerMessage }
+        ],
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.7,
+        max_tokens: 1024
+      }),
+      signal: controller.signal
+    });
 
-  const data = await response.json();
-  return data?.choices?.[0]?.message?.content || "";
+    if (!response.ok) throw new Error(`Falha IA (${response.status})`);
+    const data = await response.json();
+    return extractReply(data).trim();
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 async function processIncoming(payload) {
   const uniqueKey = payload.messageId || `${payload.chatId}:${payload.text}`;
   if (processedIncoming.has(uniqueKey)) return;
-  processedIncoming.add(uniqueKey);
+
+  processedIncoming.set(uniqueKey, Date.now());
+  cleanupProcessedIncoming();
 
   const rules = await loadRules();
   if (!rules.globalEnabled) return;
